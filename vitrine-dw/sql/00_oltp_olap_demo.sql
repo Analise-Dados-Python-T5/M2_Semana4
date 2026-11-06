@@ -1,9 +1,9 @@
 -- =============================================================================
--- BLOCO 1 — Por que existem diferentes arquiteturas? (OLTP x OLAP)
+-- OLTP x OLAP — por que existem diferentes arquiteturas de processamento?
 -- =============================================================================
 -- Demonstração isolada e rápida, em um schema próprio que não interfere no
--- Data Warehouse construído nos blocos seguintes. A pergunta a fazer em tela
--- antes de rodar:
+-- Data Warehouse construído nos arquivos seguintes. A pergunta que o exemplo
+-- responde:
 --   "Se o caixa precisa registrar uma venda agora, ele deveria esperar uma
 --    consulta que analisa 10 milhões de vendas?"
 --
@@ -34,7 +34,7 @@ UPDATE oltp_demo.estoque
 SET quantidade = quantidade - 1
 WHERE id_produto = 101;
 
-SELECT * FROM oltp_demo.estoque ORDER BY id_produto;   -- mostre o reflexo imediato na tela
+SELECT * FROM oltp_demo.estoque ORDER BY id_produto;   -- o reflexo imediato do UPDATE
 
 -- -----------------------------------------------------------------------------
 -- Mundo OLAP: a mesma loja, agora com várias vendas já registradas.
@@ -58,6 +58,7 @@ FROM oltp_demo.vendas
 GROUP BY produto
 ORDER BY faturamento DESC;
 
--- Fale em tela: OLTP e OLAP são tipos de PROCESSAMENTO. Data Warehouse e
--- Data Lake são abordagens de ARMAZENAMENTO/ORGANIZAÇÃO. Eles convivem na
--- mesma arquitetura -- é o que os blocos 2 e 3 vão construir de verdade.
+-- OLTP e OLAP são tipos de PROCESSAMENTO. Data Warehouse e Data Lake são
+-- abordagens de ARMAZENAMENTO/ORGANIZAÇÃO. Eles convivem na mesma
+-- arquitetura -- é o que os próximos arquivos (01 a 04) vão construir de
+-- verdade.

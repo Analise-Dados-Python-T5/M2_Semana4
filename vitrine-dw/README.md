@@ -1,8 +1,7 @@
-# Vitrine — pacote técnico para a gravação (DW/DL, ETL/ELT, Modelagem Dimensional)
+# Vitrine — pacote didático de Data Warehouse (ETL/ELT, Modelagem Dimensional)
 
-Pacote de dados e scripts para rodar AO VIVO na gravação do vídeo de 2h30, seguindo
-o roteiro de 6 blocos que você já desenhou (OLTP/OLAP → Data Lake/ETL/ELT →
-Star Schema → Snowflake → Redshift/BigQuery → Desafio final). Uma única base
+Pacote de dados e scripts que acompanha os conceitos de OLTP, OLAP, Data Lake
+e Data Warehouse (ETL/ELT, Star Schema, Snowflake Schema). Uma única base
 fictícia — a loja **Vitrine** — conecta todas as demonstrações.
 
 Ambiente usado: **PostgreSQL local** (já testado neste pacote com PostgreSQL 16).
@@ -19,45 +18,46 @@ vitrine-dw/
 │   ├── lojas.csv
 │   ├── vendas.csv       (datas em 2 formatos; 1 linha com valor ausente)
 │   └── pagamentos.json  (semiestruturado, aninhado)
-├── processed/      # saída do script Python de limpeza (demonstração ETL, Bloco 2)
+├── processed/      # saída do script Python de limpeza (demonstração de ETL)
 │   ├── produtos_tratado.csv
 │   ├── mapa_produtos_duplicados.csv
 │   └── vendas_tratada.csv
 ├── scripts/        # Python
 │   ├── 01_gerar_dados_brutos.py   # gera tudo que está em raw/ (seed fixa, reprodutível)
 │   └── 02_tratar_dados.py         # ETL: lê raw/, corrige, grava em processed/
-├── sql/            # SQL, um arquivo por bloco do roteiro
+├── sql/            # SQL, um arquivo por etapa
 │   ├── 00_oltp_olap_demo.sql
 │   ├── 01_staging_elt_load.sql
+│   ├── 01b_pagamentos_insert.sql  # gerado automaticamente, ver observação abaixo
 │   ├── 02_dw_star_schema.sql
 │   ├── 03_consultas_negocio.sql
 │   ├── 04_snowflake_schema.sql
-│   └── 05_desafio_final.sql
-├── diagrams/       # cole no dbdiagram.io para o Bloco 4 (comparação visual)
+│   └── 05_exportar_para_bigquery.sql
+├── export_bigquery/  # gerado pelo passo 05 acima (CSVs para subir no BigQuery)
+├── diagrams/       # cole no dbdiagram.io para comparar Star x Snowflake visualmente
 │   ├── star_schema.dbml
 │   └── snowflake_schema.dbml
 └── docs/
     └── resultados_esperados.md    # "gabarito": o que cada consulta deve devolver
 ```
 
-## Como cada arquivo se encaixa no seu roteiro
+## Como cada arquivo se encaixa
 
-| Bloco do roteiro | O que rodar | O que isso demonstra |
-|---|---|---|
-| 1 — OLTP x OLAP (20 min) | `sql/00_oltp_olap_demo.sql` | `UPDATE` pontual x `SELECT ... GROUP BY` agregado, lado a lado |
-| 2 — Data Lake, ETL, ELT (30 min) | abrir `raw/*` na tela → rodar `scripts/02_tratar_dados.py` (ETL, Python) → rodar `sql/01_staging_elt_load.sql` (ELT, SQL) | os MESMOS 3 problemas resolvidos dos dois jeitos diferentes |
-| 3 — Construindo o DW (35 min) | `sql/02_dw_star_schema.sql` → `sql/03_consultas_negocio.sql` | grão da fato, dimensões, 3 consultas de negócio |
-| 4 — Star x Snowflake (25 min) | `sql/04_snowflake_schema.sql` + `diagrams/*.dbml` no dbdiagram.io | mesma pergunta, 1 join x 2 joins |
-| 5 — Redshift/BigQuery (25 min) | fora deste pacote — ver observação abaixo | o mesmo modelo rodando em nuvem |
-| 6 — Desafio final (15 min) | `sql/05_desafio_final.sql` | faturamento x lucro, por categoria |
+| Arquivo(s) | O que demonstra |
+|---|---|
+| `sql/00_oltp_olap_demo.sql` | OLTP x OLAP: `UPDATE` pontual x `SELECT ... GROUP BY` agregado, lado a lado |
+| `scripts/02_tratar_dados.py` (ETL) + `sql/01_staging_elt_load.sql` (ELT) | Data Lake, ETL e ELT: os MESMOS 3 problemas de qualidade de dados resolvidos de dois jeitos diferentes |
+| `sql/02_dw_star_schema.sql` + `sql/03_consultas_negocio.sql` | Construindo o DW: grão da fato, dimensões, consultas de negócio e o desafio final (faturamento x lucro) |
+| `sql/04_snowflake_schema.sql` + `diagrams/*.dbml` | Star x Snowflake: mesma pergunta, 1 join x 2 joins |
+| `sql/05_exportar_para_bigquery.sql` | Exporta o Star Schema para CSV, para recriar a mesma modelagem no BigQuery |
 
-> **Bloco 5 não tem script aqui de propósito**: é navegação pela interface
-> real do Redshift/BigQuery, não algo para rodar localmente. Se quiser, o
-> mesmo `sql/02_dw_star_schema.sql` roda quase sem alterações num desses
-> ambientes (troque `serial` por `IDENTITY`/`GENERATE_UUID()` conforme a
-> plataforma) — útil para mostrar "a mesma modelagem, plataforma diferente".
+> **Redshift/BigQuery não têm script aqui de propósito**: é navegação pela
+> interface real dessas plataformas, não algo para rodar localmente. Se
+> quiser, o mesmo `sql/02_dw_star_schema.sql` roda quase sem alterações num
+> desses ambientes (troque `serial` por `IDENTITY`/`GENERATE_UUID()` conforme
+> a plataforma) — útil para mostrar "a mesma modelagem, plataforma diferente".
 
-## Como rodar do zero (antes de gravar, uma vez)
+## Como rodar do zero
 
 ```bash
 # 1) Suba um Postgres local (ajuste usuário/senha conforme seu ambiente)
@@ -67,25 +67,31 @@ createdb vitrine
 cd vitrine-dw
 python3 scripts/01_gerar_dados_brutos.py
 
-# 3) (opcional, Bloco 2 - ETL em Python) gere a versão tratada
+# 3) (opcional, demonstração de ETL em Python) gere a versão tratada
 python3 scripts/02_tratar_dados.py
 
-# 4) Rode os blocos SQL em ordem -- SEMPRE a partir da raiz do projeto,
+# 4) Rode os arquivos SQL em ordem -- SEMPRE a partir da raiz do projeto,
 #    porque os \copy usam caminhos relativos (raw/arquivo.csv)
 psql -h localhost -U postgres -d vitrine -f sql/00_oltp_olap_demo.sql
 psql -h localhost -U postgres -d vitrine -f sql/01_staging_elt_load.sql
 psql -h localhost -U postgres -d vitrine -f sql/02_dw_star_schema.sql
 psql -h localhost -U postgres -d vitrine -f sql/03_consultas_negocio.sql
 psql -h localhost -U postgres -d vitrine -f sql/04_snowflake_schema.sql
-psql -h localhost -U postgres -d vitrine -f sql/05_desafio_final.sql
 ```
 
-Para a gravação em si: rode tudo uma vez ANTES, confira contra
-`docs/resultados_esperados.md`, e na hora de gravar pode tanto re-executar os
-mesmos arquivos (`\i sql/02_dw_star_schema.sql` dentro do `psql`, por
-exemplo) quanto colar os blocos de SQL um por um para controlar o ritmo —
-cada arquivo já está comentado e dividido exatamente nos pontos onde o
-roteiro sugere pausar.
+Rode tudo uma vez e confira os números contra `docs/resultados_esperados.md`.
+Depois, cada arquivo pode ser reexecutado individualmente (`\i sql/02_dw_star_schema.sql`
+dentro do `psql`, por exemplo) para revisar uma etapa específica -- cada
+arquivo já está comentado e dividido nos pontos certos.
+
+> **Sobre `sql/01b_pagamentos_insert.sql`**: `raw/pagamentos.json` é um
+> documento JSON grande, e carregar esse tipo de arquivo via `\set` + shell
+> (`cat`/`type`) é frágil entre sistemas (principalmente no Windows). Por
+> isso o conteúdo do JSON já vem pré-processado nesse arquivo como um único
+> `INSERT`, e `sql/01_staging_elt_load.sql` o inclui automaticamente via
+> `\i sql/01b_pagamentos_insert.sql`. Se o conteúdo de `pagamentos.json`
+> mudar, regenere esse arquivo lendo o JSON e escapando aspas simples
+> (`'` -> `''`) antes de montar o `INSERT`.
 
 ## Os 3 problemas propositais nos dados (e onde cada um é resolvido)
 
@@ -93,7 +99,7 @@ roteiro sugere pausar.
    118 foi digitado errado ("tenis runner pro ", sem acento, minúsculo, com
    espaço sobrando). Resolvido em `scripts/02_tratar_dados.py` (Python/ETL)
    e, separadamente, em `sql/02_dw_star_schema.sql` (SQL/ELT) — mesma
-   correção, dois caminhos, para o Bloco 2 comparar.
+   correção, dois caminhos, para comparar as duas abordagens.
 2. **Datas em dois formatos** — `vendas.csv` mistura `AAAA-MM-DD` (ISO) e
    `DD/MM/AAAA` (como um PDV mais antigo costuma exportar). Resolvido do
    mesmo jeito duplo acima.
@@ -102,7 +108,7 @@ roteiro sugere pausar.
    `status_qualidade = 'valor_ausente_revisar'` — bom gancho para falar de
    qualidade de dados sem transformar isso num bug escondido.
 
-## Sobre o dinheiro: por que Eletrônicos puxa o Bloco 6
+## Sobre o dinheiro: por que Eletrônicos puxa o desafio final
 
 Os custos em `raw/produtos.csv` foram montados de propósito: a categoria
 Eletrônicos vende muito (volume alto) mas tem margem apertada (~10%),

@@ -1,8 +1,8 @@
 -- =============================================================================
--- BLOCO 4 — Star Schema x Snowflake Schema
+-- Star Schema x Snowflake Schema
 -- =============================================================================
--- Transformação visual ao vivo: parte do Star Schema já construído (Bloco 3),
--- separa "categoria" para fora de dim_produto e compara a MESMA pergunta de
+-- Parte do Star Schema já construído (02_dw_star_schema.sql), separa
+-- "categoria" para fora de dim_produto e compara a MESMA pergunta de
 -- negócio nos dois modelos. Pré-requisito: 02_dw_star_schema.sql já rodado.
 --
 -- Rode com:  psql -h localhost -U postgres -d vitrine -f sql/04_snowflake_schema.sql
@@ -74,8 +74,8 @@ JOIN dw_snowflake.dim_categoria c ON p.sk_categoria = c.sk_categoria
 GROUP BY c.nome_categoria
 ORDER BY faturamento DESC;
 
--- Fale em tela: o RESULTADO é idêntico nos dois -- o que muda é a estrutura e
--- o número de JOINs. Star = menos joins, mais simples de consumir. Snowflake
--- = mais normalizado, menos redundância (o nome da categoria existe 1 vez só,
--- em vez de repetido em toda linha de produto). Nenhum dos dois é
+-- O RESULTADO é idêntico nos dois -- o que muda é a estrutura e o número de
+-- JOINs. Star = menos joins, mais simples de consumir. Snowflake = mais
+-- normalizado, menos redundância (o nome da categoria existe 1 vez só, em
+-- vez de repetido em toda linha de produto). Nenhum dos dois é
 -- universalmente melhor.

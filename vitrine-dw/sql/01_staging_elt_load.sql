@@ -1,11 +1,11 @@
 -- =============================================================================
--- BLOCO 2 — Data Lake, ETL e ELT (metade "ELT": carregar antes de transformar)
+-- Staging / ELT -- carregar antes de transformar (a metade "L" do ELT)
 -- =============================================================================
 -- Carrega os arquivos BRUTOS de raw/ exatamente como estão (sem corrigir nada
 -- ainda) em tabelas de staging com colunas em TEXTO. É o "L" (Load) do ELT.
 -- A transformação (o "T") acontece depois, em SQL, no arquivo
--- 02_dw_star_schema.sql -- mostre essa ordem explicitamente em tela: aqui
--- ainda não existe nenhuma coluna numérica nem data de verdade, é tudo texto.
+-- 02_dw_star_schema.sql: aqui ainda não existe nenhuma coluna numérica nem
+-- data de verdade, é tudo texto.
 --
 -- IMPORTANTE: rode a partir da RAIZ do projeto (pasta vitrine-dw/), porque os
 -- caminhos dos arquivos abaixo são relativos a ela:
@@ -75,11 +75,13 @@ CREATE TABLE staging.pagamentos_raw (
 -- O JSON entra inteiro como um único documento (truque de demonstração: lê o
 -- arquivo via shell e injeta como jsonb). Em uma arquitetura real, isso seria
 -- feito por um conector/ingestão (Fivetran, Airbyte, um job Python, etc.).
-\set payload `cat raw/pagamentos.json`
-INSERT INTO staging.pagamentos_raw (payload) VALUES (:'payload'::jsonb);
+-- (substituido: carga feita por sql/01b_pagamentos_insert.sql, mais robusto no Windows)
+-- \set payload `type raw/pagamentos.json`
+-- INSERT INTO staging.pagamentos_raw (payload) VALUES (:'payload'::jsonb);
+\i sql/01b_pagamentos_insert.sql
 
 -- -----------------------------------------------------------------------------
--- Mostre em tela: chegou tudo, mas ainda está "sujo".
+-- Chegou tudo, mas ainda está "sujo":
 -- -----------------------------------------------------------------------------
 SELECT 'lojas_raw'     AS tabela, count(*) AS linhas FROM staging.lojas_raw
 UNION ALL SELECT 'produtos_raw',  count(*) FROM staging.produtos_raw
@@ -87,7 +89,7 @@ UNION ALL SELECT 'clientes_raw',  count(*) FROM staging.clientes_raw
 UNION ALL SELECT 'vendas_raw',    count(*) FROM staging.vendas_raw
 UNION ALL SELECT 'pagamentos_raw (docs)', count(*) FROM staging.pagamentos_raw;
 
--- aponte em tela: 2 formatos de data convivendo na mesma coluna de texto
+-- 2 formatos de data convivendo na mesma coluna de texto:
 SELECT DISTINCT
     CASE WHEN data_venda ~ '^\d{4}-\d{2}-\d{2}$' THEN 'ISO (AAAA-MM-DD)'
          WHEN data_venda ~ '^\d{2}/\d{2}/\d{4}$' THEN 'BR (DD/MM/AAAA)'
@@ -96,10 +98,10 @@ SELECT DISTINCT
 FROM staging.vendas_raw
 GROUP BY 1;
 
--- aponte em tela: a linha com valor_unitario ausente
+-- A linha com valor_unitario ausente:
 SELECT * FROM staging.vendas_raw WHERE valor_unitario = '' OR valor_unitario IS NULL;
 
--- aponte em tela: o produto duplicado (mesmo nome/preço, grafias diferentes)
+-- O produto duplicado (mesmo nome/preço, grafias diferentes):
 SELECT id_produto, nome_produto, preco_unitario
 FROM staging.produtos_raw
 WHERE lower(unaccent(trim(nome_produto))) IN (

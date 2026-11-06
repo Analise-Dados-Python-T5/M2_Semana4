@@ -1,4 +1,4 @@
-// Snowflake Schema - loja Vitrine (Bloco 4)
+// Snowflake Schema - loja Vitrine
 // Abra em https://dbdiagram.io -> cole este conteúdo -> ele desenha o diagrama.
 // Diferença para o star: dim_produto NÃO tem mais a coluna categoria --
 // ela virou uma dimensão própria (dim_categoria), normalizada.

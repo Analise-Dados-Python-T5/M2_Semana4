@@ -1,11 +1,10 @@
 -- =============================================================================
--- BLOCO 3 — Construindo o Data Warehouse (Star Schema)
+-- Construindo o Data Warehouse (Star Schema)
 -- =============================================================================
--- Esta é a demonstração central do vídeo. Pré-requisito: já ter rodado
--- 01_staging_elt_load.sql (precisa dos dados em staging.*).
+-- Pré-requisito: já ter rodado 01_staging_elt_load.sql (precisa dos dados em
+-- staging.*).
 --
--- Grão da tabela de fatos (defina isso em tela, é a frase mais importante do
--- bloco):
+-- Grão da tabela de fatos (a frase mais importante deste arquivo):
 --   "Uma linha representa um item de um pedido vendido em uma determinada
 --    data, para um cliente, em uma loja."
 --
@@ -92,7 +91,7 @@ FROM generate_series('2025-01-01'::date, '2025-12-31'::date, interval '1 day') A
 -- -----------------------------------------------------------------------------
 -- 3) dim_produto: carrega já RESOLVENDO a duplicata (101 / "tenis runner pro ")
 --    Mantém a linha de id mais antigo como "canônica" por (nome sem acento,
---    preço). Mostre o DISTINCT ON em tela -- é a transformação acontecendo.
+--    preço). O DISTINCT ON abaixo é a transformação acontecendo.
 -- -----------------------------------------------------------------------------
 INSERT INTO dw.dim_produto (id_produto_origem, nome_produto, categoria, marca, preco_unitario, custo_unitario)
 SELECT DISTINCT ON (lower(unaccent(trim(nome_produto))), preco_unitario::numeric)
@@ -155,7 +154,7 @@ JOIN dw.dim_cliente dc ON dc.id_cliente_origem = v.id_cliente::int
 JOIN dw.dim_loja    dl ON dl.id_loja_origem    = v.id_loja::int;
 
 -- -----------------------------------------------------------------------------
--- 6) Conferência em tela
+-- 6) Conferência dos resultados
 -- -----------------------------------------------------------------------------
 SELECT 'dim_tempo'   AS tabela, count(*) FROM dw.dim_tempo
 UNION ALL SELECT 'dim_produto', count(*) FROM dw.dim_produto

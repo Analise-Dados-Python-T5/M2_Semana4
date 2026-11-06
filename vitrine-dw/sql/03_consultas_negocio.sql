@@ -1,9 +1,10 @@
 -- =============================================================================
--- BLOCO 3 (continuação) — Consultas de negócio sobre o Star Schema
+-- Consultas de negócio sobre o Star Schema
 -- =============================================================================
--- Três consultas, não dez conceitos abstratos. O mesmo modelo responde a
--- perguntas diferentes só mudando o agrupamento -- é a ideia a reforçar em
--- tela depois de rodar as três.
+-- O mesmo modelo responde a perguntas diferentes só mudando o agrupamento --
+-- é a ideia central deste arquivo. As 3 primeiras consultas são genéricas;
+-- o desafio final usa o mesmo modelo para responder a uma pergunta mais
+-- específica: por que faturar mais não significa lucrar mais.
 --
 -- Rode com:  psql -h localhost -U postgres -d vitrine -f sql/03_consultas_negocio.sql
 -- (depois de 02_dw_star_schema.sql)
@@ -50,5 +51,48 @@ GROUP BY c.nome_cliente, c.segmento
 ORDER BY valor_total DESC
 LIMIT 10;
 
--- Fale em tela: "novo" compra pouco mas aparece bastante? "recorrente" domina
--- o topo? Deixe o resultado aparecer na tela antes de comentar.
+-- "novo" compra pouco mas aparece bastante? "recorrente" domina o topo?
+-- Compare os segmentos antes de seguir para o desafio abaixo.
+
+-- -----------------------------------------------------------------------------
+-- Desafio: "a loja está vendendo mais, mas lucrando menos?"
+-- -----------------------------------------------------------------------------
+
+-- 4) Qual categoria vendeu mais UNIDADES? (não é a mesma coisa que faturamento)
+SELECT
+    p.categoria,
+    SUM(f.quantidade) AS unidades_vendidas
+FROM dw.fato_vendas f
+JOIN dw.dim_produto p ON f.sk_produto = p.sk_produto
+GROUP BY p.categoria
+ORDER BY unidades_vendidas DESC;
+
+-- -----------------------------------------------------------------------------
+-- 5) Por que faturamento maior não significa lucro maior?
+-- A resposta só é possível porque dim_produto guarda custo_unitario -- se o
+-- modelo não tivesse esse atributo, essa pergunta de negócio não teria como
+-- ser respondida. É o exemplo de que a modelagem tem que nascer da pergunta
+-- de negócio, não o contrário.
+-- -----------------------------------------------------------------------------
+SELECT
+    p.categoria,
+    SUM(f.quantidade * COALESCE(f.valor_unitario, 0) - f.desconto)        AS faturamento,
+    SUM(f.quantidade * p.custo_unitario)                                  AS custo_total,
+    SUM(f.quantidade * COALESCE(f.valor_unitario, 0) - f.desconto)
+        - SUM(f.quantidade * p.custo_unitario)                            AS lucro_bruto,
+    ROUND(
+        100.0 * (
+            SUM(f.quantidade * COALESCE(f.valor_unitario, 0) - f.desconto)
+            - SUM(f.quantidade * p.custo_unitario)
+        ) / NULLIF(SUM(f.quantidade * COALESCE(f.valor_unitario, 0) - f.desconto), 0)
+    , 1) AS margem_pct
+FROM dw.fato_vendas f
+JOIN dw.dim_produto p ON f.sk_produto = p.sk_produto
+GROUP BY p.categoria
+ORDER BY faturamento DESC;
+
+-- A categoria com MAIOR faturamento costuma ser Eletrônicos (puxada por
+-- volume de unidades), mas é também a de MENOR margem -- o custo_unitario
+-- dela foi desenhado propositalmente perto do preço de venda. Faturamento
+-- alto e lucro alto não são a mesma pergunta, e só dá pra responder a
+-- segunda porque o modelo guardou o custo desde o início.

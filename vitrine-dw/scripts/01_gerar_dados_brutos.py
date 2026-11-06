@@ -1,5 +1,5 @@
 """
-Gera os dados brutos da loja fictícia "Vitrine" para a gravação.
+Gera os dados brutos da loja fictícia "Vitrine" usada neste material.
 
 Roda de forma determinística (seed fixa) para que os números batam sempre
 com os mesmos da documentação em docs/resultados_esperados.md.
@@ -43,10 +43,12 @@ with open(RAW / "lojas.csv", "w", newline="", encoding="utf-8") as f:
 #    Observação proposital: o produto 118 é o MESMO produto que o 101,
 #    só que digitado errado no sistema de origem ("tenis runner pro ",
 #    minúsculo, com espaço sobrando e sem acento). É o "produto com nome
-#    duplicado" que o roteiro pede para aparecer no CSV bruto.
+#    duplicado" que aparece de propósito no CSV bruto, para ilustrar um
+#    problema real de qualidade de dados.
 #    Observação proposital 2: a categoria "Eletrônicos" tem margem bem mais
-#    apertada que as demais (custo perto do preço) -- é o que vai sustentar
-#    a pergunta do Bloco 6 ("faturamento maior não significa lucro maior").
+#    apertada que as demais (custo perto do preço) -- é o que sustenta a
+#    pergunta de negócio em sql/03_consultas_negocio.sql ("faturamento maior
+#    não significa lucro maior").
 # ---------------------------------------------------------------------------
 produtos = [
     # Calçados (margem boa)
@@ -125,7 +127,8 @@ end = date(2025, 12, 31)
 dias_totais = (end - start).days
 
 # distribuição mensal não uniforme (pico em maio e novembro/dezembro) para o
-# desafio do Bloco 6 ter uma resposta interessante no "qual mês faturou mais"
+# desafio final (sql/03_consultas_negocio.sql) ter uma resposta interessante
+# no "qual mês faturou mais"
 peso_mes = {1: 0.9, 2: 0.8, 3: 0.9, 4: 0.95, 5: 1.35, 6: 1.0, 7: 0.95,
             8: 0.9, 9: 1.0, 10: 1.05, 11: 1.3, 12: 1.4}
 
@@ -167,7 +170,8 @@ for _ in range(N_VENDAS):
     })
     id_venda += 1
 
-# injeta 1 linha com valor_unitario ausente, de propósito (pedido real do roteiro)
+# injeta 1 linha com valor_unitario ausente, de propósito (problema real de
+# qualidade de dados)
 vendas[37]["valor_unitario"] = ""
 
 with open(RAW / "vendas.csv", "w", newline="", encoding="utf-8") as f:

@@ -2,14 +2,14 @@
 Demonstração de ETL (Extract -> Transform -> Load) em Python: lê os arquivos
 brutos de raw/, corrige os 3 problemas propositais e grava uma versão tratada
 em processed/. Isso representa a transformação ANTES de carregar no banco --
-o oposto do que o Bloco 2 (ELT) faz, que carrega raw/ direto no Postgres via
-staging e só transforma depois, em SQL (ver sql/01_staging_elt_load.sql).
+o oposto da abordagem ELT, que carrega raw/ direto no Postgres via staging e
+só transforma depois, em SQL (ver sql/01_staging_elt_load.sql).
 
-Use este script ao vivo no Bloco 2 para mostrar a tela mudando:
-  1) abra raw/vendas.csv e aponte o valor ausente e os dois formatos de data
-  2) abra raw/produtos.csv e aponte o produto 118 (duplicata do 101)
-  3) rode este script
-  4) abra processed/vendas_tratada.csv e processed/produtos_tratado.csv
+Depois de rodar, compare:
+  - raw/produtos.csv  x  processed/produtos_tratado.csv      (duplicata resolvida)
+  - raw/vendas.csv    x  processed/vendas_tratada.csv        (datas padronizadas,
+                                                                valor ausente sinalizado)
+  - processed/mapa_produtos_duplicados.csv  (id duplicado -> id canônico)
 
 Rode com:  python3 scripts/02_tratar_dados.py
 """
