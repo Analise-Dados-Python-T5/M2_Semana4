@@ -1,0 +1,52 @@
+sk_cliente,id_cliente_origem,nome_cliente,cidade,segmento,data_cadastro
+1,1,Ana Souza,Salvador,Novo,2024-10-16
+2,2,Bruno Lima,Recife,Recorrente,2025-01-29
+3,3,Carla Dias,Belo Horizonte,Novo,2023-08-17
+4,4,Diego Alves,Salvador,Recorrente,2024-11-23
+5,5,Elisa Rocha,São Paulo,Novo,2023-02-02
+6,6,Felipe Martins,Curitiba,Novo,2023-08-12
+7,7,Gabriela Nunes,Curitiba,Recorrente,2024-07-28
+8,8,Henrique Pires,Brasília,Recorrente,2023-08-14
+9,9,Isabela Castro,São Paulo,Recorrente,2025-04-08
+10,10,João Pedro Melo,Fortaleza,Recorrente,2024-12-15
+11,11,Karina Ramos,Belo Horizonte,Recorrente,2023-10-12
+12,12,Leonardo Fonseca,Porto Alegre,Novo,2025-02-20
+13,13,Mariana Teixeira,Fortaleza,Novo,2023-04-05
+14,14,Nicolas Barros,Porto Alegre,Recorrente,2024-01-03
+15,15,Olivia Fernandes,São Paulo,Recorrente,2025-04-06
+16,16,Paulo Vieira,Salvador,Recorrente,2024-07-03
+17,17,Queila Andrade,Recife,Recorrente,2023-03-22
+18,18,Rafael Moreira,Curitiba,Novo,2024-08-14
+19,19,Sabrina Costa,Curitiba,Recorrente,2023-02-16
+20,20,Thiago Azevedo,Curitiba,Novo,2023-03-23
+21,21,Ursula Pinto,Recife,Recorrente,2024-01-25
+22,22,Vitor Hugo Araujo,Porto Alegre,Recorrente,2024-10-12
+23,23,Wesley Cardoso,Porto Alegre,Recorrente,2024-01-15
+24,24,Ximena Duarte,Recife,Novo,2024-11-17
+25,25,Yasmin Correia,Belo Horizonte,Recorrente,2024-09-15
+26,26,Zeca Monteiro,Brasília,Recorrente,2023-06-17
+27,27,Amanda Freitas,Curitiba,Recorrente,2023-10-04
+28,28,Bernardo Tavares,São Paulo,Recorrente,2025-05-13
+29,29,Camila Ribeiro,São Paulo,Recorrente,2025-04-21
+30,30,Daniel Guimaraes,Recife,Novo,2024-02-15
+31,31,Eduarda Lopes,Porto Alegre,Recorrente,2023-08-05
+32,32,Fabio Antunes,Brasília,Recorrente,2024-11-02
+33,33,Giovanna Peixoto,Brasília,Recorrente,2024-10-20
+34,34,Hugo Siqueira,Belo Horizonte,Recorrente,2023-09-29
+35,35,Iris Cavalcante,Recife,Recorrente,2025-02-01
+36,36,Jorge Batista,Fortaleza,Recorrente,2024-08-20
+37,37,Laura Macedo,Belo Horizonte,Recorrente,2023-08-13
+38,38,Marcelo Brandao,São Paulo,Novo,2023-04-04
+39,39,Natalia Farias,Belo Horizonte,Recorrente,2023-06-06
+40,40,Otavio Rezende,Salvador,Recorrente,2024-09-02
+41,41,Patricia Moura,Brasília,Recorrente,2024-01-26
+42,42,Quintino Salles,São Paulo,Novo,2024-07-20
+43,43,Renata Borges,Recife,Recorrente,2024-11-29
+44,44,Samuel Prado,Recife,Recorrente,2023-04-25
+45,45,Tatiane Gusmao,Brasília,Novo,2023-06-11
+46,46,Ulisses Campos,Recife,Recorrente,2025-01-09
+47,47,Valentina Soares,Salvador,Recorrente,2024-06-03
+48,48,William Torres,Curitiba,Recorrente,2025-05-11
+49,49,Yago Medeiros,Belo Horizonte,Novo,2024-01-18
+50,50,Zilda Franco,Porto Alegre,Recorrente,2024-09-05
+51,51,Aline Bezerra,Salvador,Recorrente,2023-01-20

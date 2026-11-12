@@ -49,36 +49,31 @@ def tratar_produtos():
     with open(RAW / "produtos.csv", encoding="utf-8") as f:
         produtos = list(csv.DictReader(f))
 
-    # Normaliza nome (trim + minúsculo + sem acento) para enxergar duplicatas de verdade
+    # Normaliza nome (trim + minúsculo + sem acento) para enxergar duplicatas de
+    # verdade, e já guarda a chave de agrupamento em cada produto.
     for p in produtos:
+        p["nome_produto"] = p["nome_produto"].strip()
         p["nome_normalizado"] = normalizar(p["nome_produto"])
+        p["chave"] = (p["nome_normalizado"], p["preco_unitario"])
 
     # Agrupa por (nome_normalizado, preco_unitario) -> mantém o menor id_produto
     # como "canônico" e registra o mapeamento dos ids duplicados para ele.
     canonico_por_chave = {}
     for p in sorted(produtos, key=lambda p: int(p["id_produto"])):
-        chave = (p["nome_normalizado"], p["preco_unitario"])
-        canonico_por_chave.setdefault(chave, p["id_produto"])
+        canonico_por_chave.setdefault(p["chave"], p["id_produto"])
 
     mapa_duplicatas = {}  # id duplicado -> id canônico
     produtos_tratados = []
     for p in produtos:
-        chave = (p["nome_normalizado"], p["preco_unitario"])
-        canonico_id = canonico_por_chave[chave]
+        canonico_id = canonico_por_chave[p["chave"]]
         if p["id_produto"] != canonico_id:
             mapa_duplicatas[p["id_produto"]] = canonico_id
             continue  # não entra na tabela tratada, vira só um "alias"
-        produtos_tratados.append({
-            "id_produto": p["id_produto"],
-            "nome_produto": p["nome_produto"].strip(),
-            "categoria": p["categoria"],
-            "marca": p["marca"],
-            "preco_unitario": p["preco_unitario"],
-            "custo_unitario": p["custo_unitario"],
-        })
+        produtos_tratados.append(p)
 
+    campos_produto = ["id_produto", "nome_produto", "categoria", "marca", "preco_unitario", "custo_unitario"]
     with open(PROCESSED / "produtos_tratado.csv", "w", newline="", encoding="utf-8") as f:
-        w = csv.DictWriter(f, fieldnames=["id_produto", "nome_produto", "categoria", "marca", "preco_unitario", "custo_unitario"])
+        w = csv.DictWriter(f, fieldnames=campos_produto, extrasaction="ignore")
         w.writeheader()
         w.writerows(produtos_tratados)
 

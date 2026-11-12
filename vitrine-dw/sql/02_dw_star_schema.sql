@@ -104,7 +104,7 @@ SELECT DISTINCT ON (lower(unaccent(trim(nome_produto))), preco_unitario::numeric
 FROM staging.produtos_raw
 ORDER BY lower(unaccent(trim(nome_produto))), preco_unitario::numeric, id_produto::int ASC;
 
--- Mapa auxiliar: TODO id de origem (inclusive o duplicado) -> sk_produto canônico
+-- Mapa auxiliar: TODO id de origem (inclusive o duplicado) -> sk_produto canônico    ADICIONAR COMENTÁRIOS
 CREATE TEMP TABLE map_produto AS
 SELECT
     raw.id_produto::int AS id_produto_origem,

@@ -9,6 +9,8 @@
 -- Pré-requisitos:
 --   1) sql/02_dw_star_schema.sql já rodado (schema dw.* populado)
 --   2) a pasta export_bigquery/ já criada na raiz do projeto (mkdir export_bigquery)
+--  cd "  "
+--  mkdir export_bigquery
 --
 -- Rode com:  psql -h localhost -U postgres -d vitrine -f sql/05_exportar_para_bigquery.sql
 -- =============================================================================
